@@ -8,7 +8,7 @@ import requests
 
 
 def is_prime(num):
-    if num < 0:
+    if num < 2:  # Explicitly check for numbers less than 2
         return False
     for n in range(2, int(num**0.5) + 1):
         if num % n == 0:
@@ -31,24 +31,21 @@ def get_properties(num):
     is_armstrong = armstrong_sum == abs(num)
 
     # Check if Odd or Even
-    if num % 2 == 0:
-        is_even = True
-        is_odd = False
-    else:
-        is_even = False
-        is_odd = True
+    is_even = num % 2 == 0
+    is_odd = not is_even
 
-    # Return in the requested format
+    # Determine properties
+    result = []
+
     if is_armstrong:
-        if is_odd:
-            return ["armstrong", "odd"]
-        else:
-            return ["armstrong", "even"]
-    else:
-        if is_even:
-            return ["even"]
-        else:
-            return []
+        result.append("armstrong")
+
+    if is_odd:
+        result.append("odd")
+    elif is_even:
+        result.append("even")
+
+    return result
 
 
 def digit_sum(num):
@@ -77,10 +74,11 @@ class NumberView(APIView):
     def get(self, request):
         number_param = request.query_params["number"]
 
-        if not number_param.isdigit():
+        if not number_param.lstrip("-").isdigit():
+            print(number_param)
             return Response(
                 {
-                    "number": "alphabet",
+                    "number": number_param,
                     "error": True,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
